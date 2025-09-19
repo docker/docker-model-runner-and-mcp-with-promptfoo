@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: 'MCP tool evaluation with Docker MCP Toolkit'
+
+providers:
+  - id: mcp
+    label: 'Docker MCP Toolkit'
+    config:
+      enabled: true
+      servers:
+        # Connect the Docker MCP Toolkit to expose all of its tools to the prompt
+        - name: docker-mcp-toolkit
+          command: docker
+          args: [ 'mcp', 'gateway', 'run' ]
+        # Connect the YouTube Transcript MCP Server to expose the get_transcript tool to the prompt
+        - name: youtube-transcript-mcp-server
+          command: docker
+          args: [ 'run', '-i', '--rm', 'mcp/youtube-transcript' ]
+      verbose: true
+      debug: true
+
+prompts:
+  - '{{prompt}}'
+
+tests:
+  # Test that the GitHub MCP server is available and authenticated
+  - vars:
+      prompt: '{"tool": "get_release_by_tag", "args": {"owner": "docker", "repo": "cagent", "tag": "v1.3.5"}}'
+    assert:
+      - type: contains
+        value: "What's Changed"
+
+  # Test that the fetch tool is available and works
+  - vars:
+      prompt: '{"tool": "fetch", "args": {"url": "https://www.docker.com/blog/run-llms-locally/"}}'
+    assert:
+      - type: contains
+        value: 'GPU acceleration'
+
+  # Test that the Playwright browser_navigate tool is available and works
+  - vars:
+      prompt: '{"tool": "browser_navigate", "args": {"url": "https://hub.docker.com/mcp"}}'
+    assert:
+      - type: contains
+        value: 'Featured MCPs'
+
+  # Test that the youtube-transcript get_transcript tool is available and works
+  - vars:
+      prompt: '{"tool": "get_transcript", "args": { "url": "https://www.youtube.com/watch?v=6I2L4U7Xq6g" }}'
+    assert:
+      - type: contains
+        value: 'Michael Irwin'
+
+evaluateOptions:
+  maxConcurrency: 1 # MCP connections may need to be sequential
+  delay: 500 # Short delay between tool calls
