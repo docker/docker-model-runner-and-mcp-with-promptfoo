@@ -23,6 +23,7 @@ npm install -g promptfoo
 ## Run the model comparison evaluation
 
 ```bash
+export ANTHROPIC_API_KEY=<your_api_key_here>
 promptfoo eval -c promptfooconfig.comparison.yaml
 promptoo view
 ```
@@ -36,5 +37,6 @@ promptfoo eval -c promptfooconfig.mcp-direct.yaml
 ## Run the MCP Red-Team Example
 
 ```bash
+export ANTHROPIC_API_KEY=<your_api_key_here>
 promptfoo redteam run -c promptfooconfig.mcp-repo-summarizer.yaml
 ```
